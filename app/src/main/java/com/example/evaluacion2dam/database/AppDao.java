@@ -8,6 +8,7 @@ import androidx.room.Update;
 
 import com.example.evaluacion2dam.model.Cliente;
 import com.example.evaluacion2dam.model.Servicio;
+import com.example.evaluacion2dam.model.ServicioConCliente;
 
 import java.util.List;
 
@@ -25,6 +26,12 @@ public interface AppDao {
     @Query("SELECT * FROM clientes WHERE nombre LIKE :nombreBuscado")
     List<Cliente> buscarClientesPorNombre(String nombreBuscado);
 
+    @Delete
+    void eliminarCliente(Cliente cliente);
+
+    @Query("SELECT COUNT(*) FROM servicios WHERE clienteId = :clienteId")
+    int contarServiciosDeCliente(int clienteId);
+
     @Insert
     void insertarServicio(Servicio servicio);
 
@@ -33,6 +40,9 @@ public interface AppDao {
 
     @Query("SELECT * FROM servicios")
     List<Servicio> obtenerTodosLosServicios();
+
+    @Query("SELECT servicios.*, clientes.nombre as nombreCliente FROM servicios INNER JOIN clientes ON servicios.clienteId = clientes.id")
+    List<ServicioConCliente> obtenerServiciosConNombre();
 
     @Query("SELECT COUNT(*) FROM clientes")
     int contarClientes();

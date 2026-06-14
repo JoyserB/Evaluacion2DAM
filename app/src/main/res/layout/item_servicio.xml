@@ -7,33 +7,57 @@
     app:cardCornerRadius="8dp"
     app:cardBackgroundColor="#1A2436">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvTipoServicio"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_toStartOf="@id/btnEliminarServicio"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvEstadoServicio"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvClienteNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#AAA"
+                android:textSize="14sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/tvTipoServicio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvEstadoServicio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#1EA6D6"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvClienteId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#AAA"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnEliminarServicio"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#1EA6D6"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/tvClienteId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#AAA"
-            android:textSize="12sp" />
-
-    </LinearLayout>
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="#FF5252" />
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>

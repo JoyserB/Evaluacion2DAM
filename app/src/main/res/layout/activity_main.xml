@@ -11,20 +11,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="#1EA6D6"
         app:titleTextColor="@android:color/white"
-        app:title="Dashboard">
-
-        <EditText
-            android:id="@+id/etBuscar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Buscar cliente..."
-            android:textColor="@android:color/white"
-            android:textColorHint="#DDD"
-            android:background="@android:color/transparent"
-            android:visibility="gone"
-            android:imeOptions="actionSearch"
-            android:inputType="text"/>
-    </androidx.appcompat.widget.Toolbar>
+        app:title="Dashboard" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -35,12 +22,43 @@
 
         <include layout="@layout/view_dashboard" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <LinearLayout
+            android:id="@+id/layoutLista"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardBuscar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="#1A2436"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                android:visibility="gone">
+                <EditText
+                    android:id="@+id/etBuscar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Buscar cliente..."
+                    android:textColor="@android:color/white"
+                    android:textColorHint="#888"
+                    android:padding="12dp"
+                    android:background="@android:color/transparent"
+                    android:drawableStart="@android:drawable/ic_menu_search"
+                    android:drawablePadding="8dp"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"/>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvEmpty"

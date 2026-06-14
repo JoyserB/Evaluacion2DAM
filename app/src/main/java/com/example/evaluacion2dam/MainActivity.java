@@ -1,5 +1,7 @@
 package com.example.evaluacion2dam;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.evaluacion2dam.database.AppDatabase;
 import com.example.evaluacion2dam.model.Cliente;
 import com.example.evaluacion2dam.model.Servicio;
+import com.example.evaluacion2dam.model.ServicioConCliente;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -35,10 +39,12 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabAdd;
     private RecyclerView recyclerView;
     private TextView tvEmpty;
-    private View layoutDashboard;
+    private View layoutDashboard, layoutLista, cardBuscar;
     private EditText etBuscar;
     
     private TextView tvCountClientes, tvCountPendientes, tvIngresosTotales;
+    private View cardAccesoClientes, cardAccesoServicios;
+    private BottomNavigationView bottomNav;
 
     private AppDatabase db;
     private List<Object> dataList = new ArrayList<>();
@@ -59,49 +65,56 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         tvEmpty = findViewById(R.id.tvEmpty);
         layoutDashboard = findViewById(R.id.layoutDashboard);
+        layoutLista = findViewById(R.id.layoutLista);
+        cardBuscar = findViewById(R.id.cardBuscar);
         etBuscar = findViewById(R.id.etBuscar);
 
-        // Dashboard widgets
         tvCountClientes = findViewById(R.id.tvCountClientes);
         tvCountPendientes = findViewById(R.id.tvCountPendientes);
         tvIngresosTotales = findViewById(R.id.tvIngresosTotales);
+        
+        cardAccesoClientes = findViewById(R.id.cardAccesoClientes);
+        cardAccesoServicios = findViewById(R.id.cardAccesoServicios);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new GenericAdapter();
         recyclerView.setAdapter(adapter);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            etBuscar.setVisibility(View.GONE);
             if (id == R.id.nav_inicio) {
                 currentTab = "inicio";
                 toolbar.setTitle("Dashboard");
                 fabAdd.setVisibility(View.GONE);
                 layoutDashboard.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
+                layoutLista.setVisibility(View.GONE);
                 actualizarDashboard();
                 return true;
             } else if (id == R.id.nav_clientes) {
                 currentTab = "clientes";
-                toolbar.setTitle(""); // Ocultamos título para mostrar el buscador
-                etBuscar.setVisibility(View.VISIBLE);
+                toolbar.setTitle("Clientes");
+                cardBuscar.setVisibility(View.VISIBLE);
                 fabAdd.setVisibility(View.VISIBLE);
                 layoutDashboard.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
+                layoutLista.setVisibility(View.VISIBLE);
                 cargarDatos("clientes");
                 return true;
             } else if (id == R.id.nav_servicios) {
                 currentTab = "servicios";
                 toolbar.setTitle("Servicios");
+                cardBuscar.setVisibility(View.GONE);
                 fabAdd.setVisibility(View.VISIBLE);
                 layoutDashboard.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
+                layoutLista.setVisibility(View.VISIBLE);
                 cargarDatos("servicios");
                 return true;
             }
             return false;
         });
+
+        cardAccesoClientes.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_clientes));
+        cardAccesoServicios.setOnClickListener(v -> bottomNav.setSelectedItemId(R.id.nav_servicios));
 
         etBuscar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
         fabAdd.setOnClickListener(v -> {
             if (currentTab.equals("clientes")) {
-                mostrarDialogoNuevoCliente();
+                mostrarDialogoNuevoCliente(null);
             } else if (currentTab.equals("servicios")) {
                 mostrarDialogoNuevoServicio();
             }
@@ -133,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
         tvCountClientes.setText(String.valueOf(clientes));
         tvCountPendientes.setText(String.valueOf(pendientes));
         tvIngresosTotales.setText(String.format(Locale.getDefault(), "$%.2f", ingresos));
-        
         tvEmpty.setVisibility(View.GONE);
     }
 
@@ -142,9 +154,8 @@ public class MainActivity extends AppCompatActivity {
         if (tipo.equals("clientes")) {
             dataList.addAll(db.appDao().obtenerTodosLosClientes());
         } else if (tipo.equals("servicios")) {
-            dataList.addAll(db.appDao().obtenerTodosLosServicios());
+            dataList.addAll(db.appDao().obtenerServiciosConNombre());
         }
-        
         tvEmpty.setVisibility(dataList.isEmpty() ? View.VISIBLE : View.GONE);
         adapter.notifyDataSetChanged();
     }
@@ -156,23 +167,49 @@ public class MainActivity extends AppCompatActivity {
         tvEmpty.setVisibility(dataList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private void mostrarDialogoNuevoCliente() {
+    private void mostrarDialogoNuevoCliente(Cliente clienteAEditar) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_nuevo_cliente, null);
+        
+        TextView tvTitulo = view.findViewById(R.id.tvTituloDialog);
         EditText etNombre = view.findViewById(R.id.etNombre);
         EditText etTelefono = view.findViewById(R.id.etTelefono);
         EditText etEmail = view.findViewById(R.id.etEmail);
+        EditText etDireccion = view.findViewById(R.id.etDireccion);
+        EditText etMunicipio = view.findViewById(R.id.etMunicipio);
+        EditText etNotas = view.findViewById(R.id.etNotas);
+
+        if (clienteAEditar != null) {
+            tvTitulo.setText("Editar Cliente");
+            etNombre.setText(clienteAEditar.nombre);
+            etTelefono.setText(clienteAEditar.telefono);
+            etEmail.setText(clienteAEditar.email);
+            etDireccion.setText(clienteAEditar.direccion);
+            etMunicipio.setText(clienteAEditar.municipio);
+            etNotas.setText(clienteAEditar.notas);
+        }
 
         builder.setView(view)
                 .setPositiveButton("Guardar", (dialog, id) -> {
                     String nombre = etNombre.getText().toString();
-                    if (nombre.isEmpty()) return;
-                    Cliente c = new Cliente();
+                    if (nombre.isEmpty()) {
+                        Toast.makeText(this, "Nombre obligatorio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    Cliente c = (clienteAEditar == null) ? new Cliente() : clienteAEditar;
                     c.nombre = nombre;
                     c.telefono = etTelefono.getText().toString();
                     c.email = etEmail.getText().toString();
-                    db.appDao().insertarCliente(c);
+                    c.direccion = etDireccion.getText().toString();
+                    c.municipio = etMunicipio.getText().toString();
+                    c.notas = etNotas.getText().toString();
+                    
+                    if (clienteAEditar == null) db.appDao().insertarCliente(c);
+                    else db.appDao().actualizarCliente(c);
+                    
                     cargarDatos("clientes");
+                    actualizarDashboard();
                 })
                 .setNegativeButton("Cancelar", null).show();
     }
@@ -201,19 +238,54 @@ public class MainActivity extends AppCompatActivity {
                     s.clienteId = sel.id;
                     s.tipoServicio = etTipo.getText().toString();
                     s.estado = spEstado.getSelectedItem().toString();
-                    
                     try {
                         s.costoManoObra = Double.parseDouble(etMano.getText().toString());
                         s.costoMateriales = Double.parseDouble(etMate.getText().toString());
                     } catch (Exception e) {
-                        s.costoManoObra = 0;
-                        s.costoMateriales = 0;
+                        s.costoManoObra = 0; s.costoMateriales = 0;
                     }
-                    
                     db.appDao().insertarServicio(s);
                     cargarDatos("servicios");
+                    actualizarDashboard();
                 })
                 .setNegativeButton("Cancelar", null).show();
+    }
+
+    private void mostrarDetalleCliente(Cliente c) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Light_NoActionBar_Fullscreen);
+        View view = getLayoutInflater().inflate(R.layout.dialog_detalle_cliente, null);
+
+        ((TextView) view.findViewById(R.id.tvDetalleNombre)).setText(c.nombre);
+        ((TextView) view.findViewById(R.id.tvDetalleTelefono)).setText(c.telefono);
+        ((TextView) view.findViewById(R.id.tvDetalleEmail)).setText(c.email);
+        ((TextView) view.findViewById(R.id.tvDetalleDireccion)).setText(c.direccion);
+        ((TextView) view.findViewById(R.id.tvDetalleMunicipio)).setText(c.municipio);
+        ((TextView) view.findViewById(R.id.tvDetalleNotas)).setText(c.notas);
+
+        AlertDialog dialog = builder.setView(view).create();
+
+        view.findViewById(R.id.btnLlamar).setOnClickListener(v -> {
+            if (c.telefono != null && !c.telefono.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + c.telefono));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No hay número registrado", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        view.findViewById(R.id.btnWhatsapp).setOnClickListener(v -> {
+            if (c.telefono != null && !c.telefono.isEmpty()) {
+                String url = "https://api.whatsapp.com/send?phone=" + c.telefono;
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No hay número registrado", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 
     class GenericAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -235,23 +307,53 @@ public class MainActivity extends AppCompatActivity {
             Object item = dataList.get(position);
             if (holder instanceof ClienteViewHolder) {
                 Cliente c = (Cliente) item;
-                ((ClienteViewHolder) holder).nombre.setText(c.nombre);
-                ((ClienteViewHolder) holder).tel.setText(c.telefono);
-                ((ClienteViewHolder) holder).email.setText(c.email);
-            } else {
-                Servicio s = (Servicio) item;
-                ((ServicioViewHolder) holder).tipo.setText(s.tipoServicio);
-                ((ServicioViewHolder) holder).estado.setText(s.estado);
-                ((ServicioViewHolder) holder).idC.setText("ID Cliente: " + s.clienteId);
+                ClienteViewHolder cvh = (ClienteViewHolder) holder;
+                cvh.nombre.setText(c.nombre);
+                cvh.tel.setText(c.telefono);
+                cvh.email.setText(c.email);
                 
-                holder.itemView.setOnLongClickListener(v -> {
-                    if (s.estado.equals("Pendiente")) {
-                        db.appDao().eliminarServicio(s);
-                        cargarDatos("servicios");
+                holder.itemView.setOnClickListener(v -> mostrarDetalleCliente(c));
+                cvh.btnEditar.setOnClickListener(v -> mostrarDialogoNuevoCliente(c));
+                
+                cvh.btnEliminar.setOnClickListener(v -> {
+                    int servicios = db.appDao().contarServiciosDeCliente(c.id);
+                    if (servicios > 0) {
+                        Toast.makeText(MainActivity.this, "No se puede eliminar: tiene " + servicios + " servicios registrados", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "No se puede borrar servicios en proceso", Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Eliminar Cliente")
+                            .setMessage("¿Deseas eliminar a " + c.nombre + "?")
+                            .setPositiveButton("Eliminar", (d, w) -> {
+                                db.appDao().eliminarCliente(c);
+                                cargarDatos("clientes");
+                                actualizarDashboard();
+                            })
+                            .setNegativeButton("Cancelar", null).show();
                     }
-                    return true;
+                });
+            } else {
+                ServicioConCliente sc = (ServicioConCliente) item;
+                Servicio s = sc.servicio;
+                ServicioViewHolder svh = (ServicioViewHolder) holder;
+                svh.clienteNombre.setText(sc.nombreCliente);
+                svh.tipo.setText(s.tipoServicio);
+                svh.estado.setText(s.estado);
+                svh.idC.setText("Total: $" + (s.costoManoObra + s.costoMateriales));
+
+                svh.btnEliminar.setOnClickListener(v -> {
+                    if (s.estado.equals("Pendiente")) {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Eliminar servicio")
+                                .setMessage("¿Deseas eliminar este servicio?")
+                                .setPositiveButton("Eliminar", (d, w) -> {
+                                    db.appDao().eliminarServicio(s);
+                                    cargarDatos("servicios");
+                                    actualizarDashboard();
+                                })
+                                .setNegativeButton("Cancelar", null).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "No se puede eliminar un servicio en " + s.estado, Toast.LENGTH_LONG).show();
+                    }
                 });
             }
         }
@@ -261,11 +363,27 @@ public class MainActivity extends AppCompatActivity {
 
     static class ClienteViewHolder extends RecyclerView.ViewHolder {
         TextView nombre, tel, email;
-        ClienteViewHolder(View v) { super(v); nombre=v.findViewById(R.id.tvNombreCliente); tel=v.findViewById(R.id.tvTelefonoCliente); email=v.findViewById(R.id.tvEmailCliente); }
+        ImageButton btnEditar, btnEliminar;
+        ClienteViewHolder(View v) { 
+            super(v); 
+            nombre=v.findViewById(R.id.tvNombreCliente); 
+            tel=v.findViewById(R.id.tvTelefonoCliente); 
+            email=v.findViewById(R.id.tvEmailCliente);
+            btnEditar=v.findViewById(R.id.btnEditarCliente);
+            btnEliminar=v.findViewById(R.id.btnEliminarCliente);
+        }
     }
 
     static class ServicioViewHolder extends RecyclerView.ViewHolder {
-        TextView tipo, estado, idC;
-        ServicioViewHolder(View v) { super(v); tipo=v.findViewById(R.id.tvTipoServicio); estado=v.findViewById(R.id.tvEstadoServicio); idC=v.findViewById(R.id.tvClienteId); }
+        TextView tipo, estado, idC, clienteNombre;
+        ImageButton btnEliminar;
+        ServicioViewHolder(View v) { 
+            super(v); 
+            tipo=v.findViewById(R.id.tvTipoServicio); 
+            estado=v.findViewById(R.id.tvEstadoServicio); 
+            idC=v.findViewById(R.id.tvClienteId); 
+            clienteNombre=v.findViewById(R.id.tvClienteNombre); 
+            btnEliminar=v.findViewById(R.id.btnEliminarServicio);
+        }
     }
 }

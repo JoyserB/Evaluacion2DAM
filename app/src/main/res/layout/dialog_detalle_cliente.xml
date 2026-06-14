@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121B2B"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvDetalleNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre del Cliente"
+        android:textColor="@android:color/white"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Teléfono -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TELÉFONO" android:textColor="#888" android:textSize="12sp" android:letterSpacing="0.1"/>
+    <TextView android:id="@+id/tvDetalleTelefono" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="7777 8888" android:textColor="@android:color/white" android:textSize="18sp" android:layout_marginBottom="16dp"/>
+
+    <!-- Email -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EMAIL" android:textColor="#888" android:textSize="12sp" android:letterSpacing="0.1"/>
+    <TextView android:id="@+id/tvDetalleEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="email@ejemplo.com" android:textColor="@android:color/white" android:textSize="18sp" android:layout_marginBottom="16dp"/>
+
+    <!-- Dirección -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DIRECCIÓN" android:textColor="#888" android:textSize="12sp" android:letterSpacing="0.1"/>
+    <TextView android:id="@+id/tvDetalleDireccion" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Santa Ana" android:textColor="@android:color/white" android:textSize="18sp" android:layout_marginBottom="16dp"/>
+
+    <!-- Municipio -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MUNICIPIO" android:textColor="#888" android:textSize="12sp" android:letterSpacing="0.1"/>
+    <TextView android:id="@+id/tvDetalleMunicipio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Santa Ana Centro" android:textColor="@android:color/white" android:textSize="18sp" android:layout_marginBottom="16dp"/>
+
+    <!-- Notas -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NOTAS" android:textColor="#888" android:textSize="12sp" android:letterSpacing="0.1"/>
+    <TextView android:id="@+id/tvDetalleNotas" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sin notas adicionales" android:textColor="@android:color/white" android:textSize="18sp" android:layout_marginBottom="32dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLlamar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Llamar"
+            app:icon="@android:drawable/stat_sys_phone_call"
+            android:backgroundTint="#1EA6D6"
+            app:cornerRadius="24dp"
+            android:layout_marginEnd="8dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWhatsapp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="WhatsApp"
+            app:icon="@android:drawable/sym_action_chat"
+            android:backgroundTint="#4CAF50"
+            app:cornerRadius="24dp"
+            android:layout_marginStart="8dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
