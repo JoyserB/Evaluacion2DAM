@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="estados_servicio">
+        <item>Pendiente</item>
+        <item>En proceso</item>
+        <item>Finalizado</item>
+    </string-array>
+</resources>
